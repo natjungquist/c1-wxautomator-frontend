@@ -16,11 +16,15 @@ import React, { useState } from 'react'
 import { Box, Button, Typography } from '@mui/material'
 import { useAuth } from '../Auth/AuthProvider'
 import FileUpload from '../FileUpload'
+import UserResultList from './UserResultList'
+import SummaryBar from './SummaryBar'
 import { inWrongAPIError_CC, webexAuthProviderName, backendUrl } from '../../utils/constants'
+import { mockExportUsersResponse } from '../../utils/mockData'
 
 function Users () {
   const { isAuthenticated, authProvider } = useAuth()
   const [csvFile, setCsvFile] = useState(null)
+  const [exportResponse, setExportResponse] = useState(mockExportUsersResponse)
 
   const handleFileChange = (event) => {
     // Function to handle CSV file upload
@@ -31,11 +35,6 @@ function Users () {
       alert('Please upload a valid CSV file')
     }
   }
-
-  // TODO
-  // function validateCsvFormat() {
-  //   // Checks the csv file to make sure it has the correct column headers.
-  // }
 
   const handleFileUpload = async () => {
     // Function to send the inputted csv file to the backend for processing.
@@ -60,14 +59,7 @@ function Users () {
         window.location.href = `${backendUrl}/login`
       }
 
-      if (response.ok) {
-
-      } else if (response.status === 404) {
-        // TODO internal server is down message
-      } else {
-
-      }
-
+      setExportResponse(response.json)
     } catch (error) {
       console.error('Error exporting users:', error)
     }
@@ -76,29 +68,34 @@ function Users () {
   const renderAuthenticatedContent = () => (
     // Function to render 'export users' content for authenticated users
     <Box>
-      <Typography variant='h6'>Users content</Typography>
-
-      {/* File upload section */}
-      <FileUpload handleFileChange={handleFileChange} />
-
-      {/* {Displays the file name once uploaded} */}
       <Box>
+        <Typography variant='h6'>Upload a CSV file</Typography>
+
+        {/* File upload section */}
+        <FileUpload handleFileChange={handleFileChange} />
+
+        {/* {Displays the file name once uploaded} */}
         {csvFile && (
           <Typography variant='body2' color='textSecondary' mt={1}>
             File uploaded: {csvFile.name}
           </Typography>
         )}
+
+        <Button
+          variant='contained'
+          color='primary'
+          disableElevation
+          disableRipple
+          onClick={handleFileUpload}
+        >
+          Export Users
+        </Button>
       </Box>
 
-      <Button
-        variant='contained'
-        color='primary'
-        disableElevation
-        disableRipple
-        onClick={handleFileUpload}
-      >
-        Export Users
-      </Button>
+      <Box mt={4}>
+        <SummaryBar totalCreateAttempts={exportResponse.totalCreateAttempts} numSuccessfullyCreated={exportResponse.numSuccessfullyCreated} />
+        <UserResultList results={exportResponse.results} />
+      </Box>
     </Box>
   )
 
