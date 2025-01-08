@@ -30,7 +30,16 @@ export const mockExportUsersResponse = {
       firstName: 'user',
       lastName: 'nine again',
       licenseResults: [
-        
+        {
+          licenseName: 'Contact Center Premium Agent',
+          status: 409,
+          message: 'Could not be assigned.'
+        },
+        {
+          licenseName: 'Webex Calling - Professional',
+          status: 409,
+          message: 'Could not be assigned.'
+        }
       ]
     }
   ],
