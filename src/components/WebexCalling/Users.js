@@ -9,22 +9,22 @@
 //  - Displays content if authenticated.
 //  - Prompts users to log in if not authenticated.
 //  - Shows a file upload icon and accepts CSV files.
-//  - TODO
+//  - Displays a loading screen while waiting for the backend response.
 //  - Provides feedback for the selected file (CSV).
 
 import React, { useState } from 'react'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, Typography, CircularProgress } from '@mui/material'
 import { useAuth } from '../Auth/AuthProvider'
 import FileUpload from '../FileUpload'
 import UserResultList from './UserResultList'
 import SummaryBar from './SummaryBar'
 import { inWrongAPIError_CC, webexAuthProviderName, backendUrl } from '../../utils/constants'
-import { mockExportUsersResponse } from '../../utils/mockData'
 
 function Users () {
   const { isAuthenticated, authProvider } = useAuth()
   const [csvFile, setCsvFile] = useState(null)
-  const [exportResponse, setExportResponse] = useState(mockExportUsersResponse)
+  const [exportResponse, setExportResponse] = useState(null)
+  const [loading, setLoading] = useState(false) // Add a loading state
 
   const handleFileChange = (event) => {
     // Function to handle CSV file upload
@@ -44,6 +44,8 @@ function Users () {
       return
     }
 
+    setLoading(true)
+
     const formData = new FormData()
     formData.append('file', csvFile)
 
@@ -55,13 +57,20 @@ function Users () {
         body: formData
       })
 
+      if (response.status === 403) {
+        // TODO show unauthorized info; handle this in the backend
+      }
+
       if (response.status === 0) {
         window.location.href = `${backendUrl}/login`
       }
 
-      setExportResponse(response.json)
+      const data = await response.json()
+      setExportResponse(data)
     } catch (error) {
       console.error('Error exporting users:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -87,14 +96,23 @@ function Users () {
           disableElevation
           disableRipple
           onClick={handleFileUpload}
+          disabled={loading} // Disable the button while loading
         >
           Export Users
         </Button>
       </Box>
 
-      <Box mt={4}>
-        <SummaryBar totalCreateAttempts={exportResponse.totalCreateAttempts} numSuccessfullyCreated={exportResponse.numSuccessfullyCreated} />
-        <UserResultList results={exportResponse.results} />
+      <Box mt={4}> 
+        {loading ? ( 
+          <CircularProgress /> // Show a loading indicator 
+        ) : ( 
+          exportResponse && (
+          <> 
+            <SummaryBar totalCreateAttempts={exportResponse.totalCreateAttempts} numSuccessfullyCreated={exportResponse.numSuccessfullyCreated} /> 
+            <UserResultList results={exportResponse.results} /> 
+          </> 
+          )
+        )} 
       </Box>
     </Box>
   )
