@@ -18,7 +18,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
 function FileUpload ({ handleFileChange }) {
   return (
-    <Box mt={2} textAlign='center'>
+    <Box>
       <Input
         type='file'
         inputProps={{ accept: '.csv' }}

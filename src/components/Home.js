@@ -58,7 +58,6 @@ function Home () {
 
       const data = await response.json()
       setOrgName(data.displayName)
-
     } catch (error) {
       console.error('Error fetching /my-organization:', error)
     }
@@ -89,7 +88,7 @@ function Home () {
     setTabValue(newValue)
   }
 
-  function GreetingSection() {
+  function GreetingSection () {
     // Render a message to the user to confirm they are logged in.
     return (
       <Box>
@@ -100,7 +99,7 @@ function Home () {
     )
   }
 
-  function CustomerNameSection() {
+  function CustomerNameSection () {
     // Render a message to the user to confirm their customer organization name.
     return (
       <Box mb={3}>
@@ -111,7 +110,7 @@ function Home () {
     )
   }
 
-  function TabsSection() {
+  function TabsSection () {
     // Render the tabs for the user to choose what they want to do with Webex.
     return (
       <Box>
